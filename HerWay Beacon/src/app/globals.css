@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 210 40% 8%;           /* near-black */
+    --surface: 210 20% 97%;
+    --muted: 210 16% 95%;
+    --muted-foreground: 210 16% 38%;
+    --border: 210 14% 90%;
+    --input: 210 14% 84%;
+    --ring: 214 88% 52%;
+    --primary: 214 88% 52%;             /* Meta Blue #1877F2 */
+    --primary-foreground: 0 0% 100%;
+    --primary-soft: 214 90% 96%;
+    --destructive: 4 62% 42%;
+    --destructive-soft: 4 70% 96%;
+    --warning: 32 85% 30%;
+    --warning-soft: 40 90% 94%;
+    --success: 152 60% 24%;
+    --success-soft: 150 40% 94%;
+  }
+  * { @apply border-border; }
+  html {
+    -webkit-text-size-adjust: 100%;
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+    min-height: 100dvh;
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+    position: relative;
+  }
+  h1, h2, h3 { @apply tracking-tight; }
+  :focus-visible { @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background; }
+  ::selection { background: hsl(var(--primary) / 0.18); }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+}
+
+@layer components {
+  .page { @apply mx-auto w-full max-w-6xl min-w-0 overflow-x-hidden px-3 sm:px-6 lg:px-8; }
+  .eyebrow { @apply text-xs font-medium uppercase tracking-wider text-muted-foreground; }
+  .pulse-dot { animation: pulse-ring 2s ease-out infinite; }
+}
+
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.35); }
+  100% { box-shadow: 0 0 0 10px hsl(var(--primary) / 0); }
+}
+
+@keyframes ping {
+  75%, 100% { transform: scale(2); opacity: 0; }
+}
+
+/* Safe-area padding for the mobile tab bar */
+.pb-safe { padding-bottom: max(env(safe-area-inset-bottom), 0.5rem); }
+
+/* Leaflet Google-Style Tile Map */
+.leaflet-container {
+  font-family: inherit !important;
+  background: #f8fafc !important;
+  z-index: 1 !important;
+}
+.leaflet-popup-content-wrapper {
+  border-radius: 14px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+  padding: 4px !important;
+}
+.leaflet-popup-content {
+  margin: 8px 12px !important;
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+}
+.custom-map-pin, .custom-map-pos, .custom-map-assist {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Safety route label tooltips on Leaflet map */
+.leaflet-safety-label {
+  background: rgba(255,255,255,0.95) !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  color: #1e293b !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  font-family: inherit !important;
+  padding: 3px 8px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
+  white-space: nowrap !important;
+}
+.leaflet-safety-label::before {
+  display: none !important;
+}
