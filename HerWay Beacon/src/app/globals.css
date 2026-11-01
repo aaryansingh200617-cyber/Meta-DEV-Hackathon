@@ -45,7 +45,7 @@
 }
 
 @layer components {
-  .page { @apply mx-auto w-full max-w-6xl min-w-0 overflow-x-hidden px-3 sm:px-6 lg:px-8; }
+  .page { @apply mx-auto w-full max-w-6xl min-w-0 px-3 sm:px-6 lg:px-8; }
   .eyebrow { @apply text-xs font-medium uppercase tracking-wider text-muted-foreground; }
   .pulse-dot { animation: pulse-ring 2s ease-out infinite; }
 }

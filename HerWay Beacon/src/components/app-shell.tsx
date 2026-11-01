@@ -51,19 +51,19 @@ export function AppShell({ user, children }: { user: ShellUser; children: React.
 
   return (
     <Ctx.Provider value={ctxVal}>
-      <div className="min-h-dvh lg:grid lg:grid-cols-[256px_1fr]">
-        {/* Desktop sidebar */}
-        <aside className="sticky top-0 hidden h-dvh flex-col border-r bg-surface p-4 lg:flex">
+      <div className="min-h-dvh">
+        {/* Desktop sidebar - fixed, never scrolls with the page */}
+        <aside className="fixed inset-y-0 left-0 z-30 hidden h-dvh w-64 flex-col border-r bg-surface p-4 lg:flex overflow-y-auto">
           <Link href="/app" className="mb-6 px-2 pt-2" aria-label="HerWay Beacon home"><Wordmark /></Link>
           <nav className="flex-1 space-y-1" aria-label="Main">
             {NAV.map((n) => (
-              <Link key={n.href} href={n.href} aria-current={isActive(n) ? 'page' : undefined} className={cn('flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground', isActive(n) && 'bg-background text-foreground shadow-card')}>
+              <Link key={n.href} href={n.href} aria-current={isActive(n) ? 'page' : undefined} className={cn('flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground', isActive(n) && 'bg-background text-foreground shadow-card')}>
                 <n.icon className={cn('h-[18px] w-[18px]', isActive(n) && 'text-primary')} aria-hidden />{n.label}
                 {n.href === '/app/journey' && view && <span className="pulse-dot ml-auto h-2 w-2 rounded-full bg-primary" aria-label="Journey active" />}
               </Link>
             ))}
           </nav>
-          <div className="rounded-xl border bg-background p-3">
+          <div className="mt-auto shrink-0 rounded-xl border bg-background p-3">
             <div className="flex items-center gap-3">
               <span className="grid h-9 w-9 place-items-center rounded-full bg-primary-soft text-sm font-semibold text-primary">{initials(user.name)}</span>
               <div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">{user.name}</p><p className="truncate text-xs text-muted-foreground">{user.demo ? 'Demo sandbox' : user.email}</p></div>
@@ -72,14 +72,15 @@ export function AppShell({ user, children }: { user: ShellUser; children: React.
           </div>
         </aside>
 
-        <div className="min-w-0 w-full max-w-full overflow-x-hidden">
+        {/* Content area: full width on mobile, padded by sidebar width (w-64 / 256px) on desktop */}
+        <div className="min-w-0 w-full max-w-full overflow-x-hidden lg:pl-64">
           {/* Mobile top bar */}
           <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b bg-background/95 px-3 sm:px-4 backdrop-blur lg:hidden">
             <Link href="/app" aria-label="Home" className="min-w-0"><Wordmark /></Link>
             {user.demo && <Badge variant="simulated" className="shrink-0 text-[10px] sm:text-xs">Demo</Badge>}
           </header>
           {view && path !== '/app/journey' && <JourneyBanner view={view} />}
-          <main id="main" className="page w-full max-w-full min-w-0 overflow-x-hidden px-3 sm:px-6 lg:px-8 py-4 sm:py-6 pb-28 lg:py-8 lg:pb-10">{children}</main>
+          <main id="main" className="page w-full max-w-full min-w-0 px-3 sm:px-6 lg:px-8 py-4 sm:py-6 pb-28 lg:py-8 lg:pb-10">{children}</main>
         </div>
 
         {/* Floating help while a journey is active */}
