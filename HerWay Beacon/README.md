@@ -1,5 +1,5 @@
 # HerWay Beacon
-**Your Journey. Your Choice. Your People.**
+**Her Journey. Her Choice. Her People.**
 
 A women's travel-safety companion that joins four things in one flow: *route comparison on dated evidence → a consented journey with server-side monitoring → a help request to trusted contacts with tracked acknowledgement → automatic revocation of every contact's access when the journey ends.*
 

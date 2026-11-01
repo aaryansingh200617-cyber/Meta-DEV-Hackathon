@@ -5,7 +5,7 @@ import './globals.css';
 import { ToastProvider } from '@/components/toast';
 
 export const metadata: Metadata = {
-  title: { default: 'HerWay Beacon — Your Journey. Your Choice. Your People.', template: '%s · HerWay Beacon' },
+  title: { default: 'HerWay Beacon — Her Journey. Her Choice. Her People.', template: '%s · HerWay Beacon' },
   description: 'A travel-safety companion: compare routes using dated evidence, share your journey only with people you choose, and ask trusted contacts for help — with access that ends when you arrive.',
   applicationName: 'HerWay Beacon',
   manifest: '/manifest.webmanifest',

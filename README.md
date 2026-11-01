@@ -1,6 +1,6 @@
 # 🛡️ HerWay Beacon — Meta Developer Hackathon
 
-> **Your Journey. Your Choice. Your People.**  
+> **Her Journey. Her Choice. Her People.**  
 > A privacy-first, evidence-based travel safety companion designed for women. HerWay Beacon combines dated street-level evidence routing, server-side journey monitoring, tiered emergency relay escalation, and zero-trust location access that revokes instantly when the journey ends.
 
 [![Next.js 15](https://img.shields.io/badge/Next.js-15.5-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
@@ -340,3 +340,4 @@ Try the core features in under 3 minutes:
 - **Author:** [aaryansingh200617-cyber](https://github.com/aaryansingh200617-cyber)
 - **Repository:** [https://github.com/aaryansingh200617-cyber/Meta-DEV-Hackathon](https://github.com/aaryansingh200617-cyber/Meta-DEV-Hackathon)
 - **License:** MIT License
+

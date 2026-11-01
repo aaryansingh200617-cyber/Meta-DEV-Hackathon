@@ -2,7 +2,7 @@
   "name": "herway-beacon",
   "version": "0.1.0",
   "private": true,
-  "description": "HerWay Beacon \u2014 Your Journey. Your Choice. Your People.",
+  "description": "HerWay Beacon \u2014 Her Journey. Her Choice. Her People.",
   "scripts": {
     "dev": "node ./node_modules/next/dist/bin/next dev",
     "build": "node ./node_modules/next/dist/bin/next build",

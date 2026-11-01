@@ -1,7 +1,7 @@
 {
   "name": "HerWay Beacon",
   "short_name": "HerWay",
-  "description": "Your Journey. Your Choice. Your People.",
+  "description": "Her Journey. Her Choice. Her People.",
   "start_url": "/app",
   "display": "standalone",
   "background_color": "#ffffff",

@@ -117,11 +117,11 @@ export default async function Landing() {
               </div>
 
               <h1 className="mt-4 sm:mt-5 text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.08] tracking-tight text-slate-900">
-                Your Journey.
+                Her Journey.
                 <br />
-                <span className="text-[#1877F2]">Your Choice.</span>
+                <span className="text-[#1877F2]">Her Choice.</span>
                 <br />
-                Your People.
+                Her People.
               </h1>
 
               <p className="mt-4 sm:mt-5 max-w-xl text-sm leading-relaxed text-slate-600 sm:text-lg">
