@@ -21,6 +21,7 @@ import {
 import { Wordmark } from '@/components/brand';
 import { Button } from '@/components/ui/button';
 import { DemoButton } from '@/components/demo-button';
+import { LandingNavbar } from '@/components/landing-navbar';
 import { LandingRouteCompare } from '@/components/landing-route-compare';
 import { currentUser } from '@/lib/auth';
 
@@ -29,85 +30,12 @@ export default async function Landing() {
 
   return (
     <div className="min-h-dvh bg-[#F8FAFC] text-slate-900 font-sans selection:bg-blue-100 selection:text-primary">
-      {/* Top Ambient Highlight */}
-      <div className="h-1 w-full bg-gradient-to-r from-blue-600 via-indigo-500 to-sky-400" />
-
-      {/* Navigation Bar */}
-      <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur-md">
-        <div className="page flex h-16 items-center justify-between gap-2 sm:gap-4">
-          <Wordmark />
-
-          {/* Center Navigation Pills */}
-          <nav className="hidden lg:flex items-center gap-1 rounded-full border border-slate-200/80 bg-slate-50/80 px-3 py-1 shadow-xs">
-            <Link
-              href="#features"
-              className="rounded-full px-3 py-1 text-xs font-semibold text-slate-600 transition-colors hover:text-slate-900 hover:bg-white"
-            >
-              Features
-            </Link>
-            <Link
-              href="#how-it-works"
-              className="rounded-full px-3 py-1 text-xs font-semibold text-slate-600 transition-colors hover:text-slate-900 hover:bg-white"
-            >
-              How It Works
-            </Link>
-            <Link
-              href="#safety-data"
-              className="rounded-full px-3 py-1 text-xs font-semibold text-slate-600 transition-colors hover:text-slate-900 hover:bg-white"
-            >
-              Safety Data
-            </Link>
-            <Link
-              href="#testimonials"
-              className="rounded-full px-3 py-1 text-xs font-semibold text-slate-600 transition-colors hover:text-slate-900 hover:bg-white"
-            >
-              Testimonials
-            </Link>
-            <Link
-              href="#about"
-              className="rounded-full px-3 py-1 text-xs font-semibold text-slate-600 transition-colors hover:text-slate-900 hover:bg-white"
-            >
-              About
-            </Link>
-          </nav>
-
-          {/* Right Action Buttons */}
-          <div className="flex items-center gap-1.5 sm:gap-2.5">
-            {user && (
-              <Button
-                asChild
-                variant="ghost"
-                size="sm"
-                className="hidden sm:inline-flex rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900"
-              >
-                <Link href="/app">Dashboard</Link>
-              </Button>
-            )}
-            <Button
-              asChild
-              variant="ghost"
-              size="sm"
-              className="rounded-xl px-2.5 sm:px-3 text-xs font-semibold text-slate-700 hover:text-slate-900"
-            >
-              <Link href="/login">Log In</Link>
-            </Button>
-            <Button
-              asChild
-              size="sm"
-              className="rounded-xl bg-primary px-3 sm:px-4 text-xs font-bold text-white shadow-xs hover:bg-primary/95"
-            >
-              <Link href="/register">
-                <span className="hidden xs:inline">Create Account</span>
-                <span className="xs:hidden">Sign Up</span>
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </header>
+      {/* Polished, Responsive Navigation Bar */}
+      <LandingNavbar user={user} />
 
       <main id="main">
-        {/* Hero Section */}
-        <section className="relative overflow-hidden bg-gradient-to-b from-blue-50/50 via-white to-slate-50/30 pt-8 pb-12 sm:pt-20 sm:pb-24">
+        {/* Hero Section - Reduced top space */}
+        <section className="relative overflow-hidden bg-gradient-to-b from-blue-50/50 via-white to-slate-50/30 pt-4 pb-10 sm:pt-6 sm:pb-16 lg:pt-8 lg:pb-20">
           <div className="page grid items-center gap-8 lg:gap-12 lg:grid-cols-[1.1fr_1fr]">
             {/* Left Column: Headlines & CTA */}
             <div>
