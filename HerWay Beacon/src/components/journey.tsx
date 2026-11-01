@@ -118,7 +118,21 @@ export function JourneyClient() {
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
         <div className="space-y-5">
-          <SafeMap routes={[{ id: j.route.id, polyline: j.route.polyline, color: ROUTE_COLORS[1]!, selected: true }]} origin={j.origin} destination={j.destination} position={currentPos} trail={view.trail} assist={j.route.evidence.assist} />
+          <SafeMap
+            routes={[{
+              id: j.route.id,
+              polyline: j.route.polyline,
+              color: j.route.safetyTier === 'safest' ? '#059669' : ROUTE_COLORS[1]!,
+              selected: true,
+              safetyTier: j.route.safetyTier,
+              safetyLabel: j.route.safetyLabel,
+            }]}
+            origin={j.origin}
+            destination={j.destination}
+            position={currentPos}
+            trail={view.trail}
+            assist={j.route.evidence.assist}
+          />
           <Card>
             <CardContent className="grid grid-cols-3 gap-2 sm:gap-4 p-3.5 sm:p-5 text-center">
               <div><p className="text-xl sm:text-2xl font-semibold tabular-nums">{left > 0 ? fmtClock(left) : '0:00'}</p><p className="text-[10px] sm:text-xs text-muted-foreground leading-tight">to arrival ({fmtTime(j.expectedArrivalAt)})</p></div>

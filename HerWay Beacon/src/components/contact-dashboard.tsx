@@ -93,7 +93,19 @@ function Active({ d, token, now, refresh, onStepDown }: { d: ContactDash; token:
                 <div className="rounded-xl bg-surface p-2 sm:p-3"><p className="text-base sm:text-lg font-semibold">{s.location ? fmtAgo(s.location.at, now) : '—'}</p><p className="text-[10px] sm:text-xs text-muted-foreground leading-tight">location update</p></div>
               </div>
               {s.scope.location && s.route ? (
-                <SafeMap routes={[{ id: s.journeyId, polyline: s.route.polyline, color: ROUTE_COLORS[1]!, selected: true }]} destination={s.route.destination} position={s.location ? { lat: s.location.lat, lng: s.location.lng, simulated: s.location.simulated } : null} caption={false} />
+                <SafeMap
+                  routes={[{
+                    id: s.journeyId,
+                    polyline: s.route.polyline,
+                    color: s.route.safetyTier === 'safest' ? '#059669' : ROUTE_COLORS[1]!,
+                    selected: true,
+                    safetyTier: s.route.safetyTier,
+                    safetyLabel: s.route.safetyLabel,
+                  }]}
+                  destination={s.route.destination}
+                  position={s.location ? { lat: s.location.lat, lng: s.location.lng, simulated: s.location.simulated } : null}
+                  caption={false}
+                />
               ) : (
                 <p className="flex items-center gap-2 rounded-xl bg-surface p-3.5 text-sm text-muted-foreground"><MapPinOff className="h-4 w-4 shrink-0" aria-hidden />{first} has shared this journey’s status with you but not her live location.</p>
               )}

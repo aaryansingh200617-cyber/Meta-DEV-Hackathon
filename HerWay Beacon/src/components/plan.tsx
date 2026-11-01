@@ -208,7 +208,16 @@ export function PlanClient() {
                 {result.routes.map((r, i) => <RouteCard key={r.id} route={r} color={ROUTE_COLORS[i % 3]!} selected={selected === r.id} fastest={r.id === fastest} onSelect={() => { setSelected(r.id); setSetup(false); }} />)}
               </div>
               <div className="order-1 space-y-4 lg:sticky lg:top-6 lg:order-2 lg:self-start min-w-0 w-full max-w-full">
-                <SafeMap routes={mapRoutes} origin={origin} destination={destination} assist={allAssist} />
+                <SafeMap
+                  routes={mapRoutes}
+                  origin={origin}
+                  destination={destination}
+                  assist={allAssist}
+                  onSelectRoute={(id) => {
+                    setSelected(id);
+                    setSetup(false);
+                  }}
+                />
                 {sel ? (
                   <Card className="w-full max-w-full overflow-hidden">
                     <CardContent className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 sm:p-4 min-w-0">

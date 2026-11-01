@@ -136,3 +136,4 @@ export function LandingNavbar({ user }: { user?: { name?: string } | null }) {
     </header>
   );
 }
+

@@ -90,7 +90,19 @@ export function HistoryDetail({ id }: { id: string }) {
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
         <div className="space-y-5">
-          <SafeMap routes={[{ id: j.route.id, polyline: j.route.polyline, color: ROUTE_COLORS[1]!, selected: true }]} origin={j.origin} destination={j.destination} trail={v.trail} />
+          <SafeMap
+            routes={[{
+              id: j.route.id,
+              polyline: j.route.polyline,
+              color: j.route.safetyTier === 'safest' ? '#059669' : ROUTE_COLORS[1]!,
+              selected: true,
+              safetyTier: j.route.safetyTier,
+              safetyLabel: j.route.safetyLabel,
+            }]}
+            origin={j.origin}
+            destination={j.destination}
+            trail={v.trail}
+          />
           {v.trailCount === 0 && <p className="-mt-3 text-xs text-muted-foreground">{j.trailPurgedAt ? 'The precise location trail was deleted per your retention settings.' : 'No location trail was recorded for this journey.'}</p>}
 
           <Card>

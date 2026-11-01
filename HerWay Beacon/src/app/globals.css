@@ -96,6 +96,13 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
   white-space: nowrap !important;
 }
+.leaflet-safety-label-safest {
+  background: #ecfdf5 !important;
+  border: 1.5px solid #10b981 !important;
+  color: #065f46 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.25) !important;
+}
 .leaflet-safety-label::before {
   display: none !important;
 }

@@ -22,6 +22,7 @@ export interface MapProps {
   assist?: AssistPoint[];
   className?: string;
   caption?: boolean;
+  onSelectRoute?: (routeId: string) => void;
 }
 
 export const ROUTE_COLORS = ['#10B981', '#1877F2', '#94A3B8'];
@@ -101,6 +102,7 @@ function TileMapView({
   assist = [],
   className,
   caption = true,
+  onSelectRoute,
   onFail,
 }: MapProps & { onFail: () => void }) {
   const mapContainerRef = React.useRef<HTMLDivElement>(null);
@@ -111,6 +113,7 @@ function TileMapView({
   const hasFittedRef = React.useRef(false);         // has bounds been fitted once?
   const [mapType, setMapType] = React.useState<'streets' | 'satellite'>('streets');
   const [loading, setLoading] = React.useState(true);
+  const [mapReady, setMapReady] = React.useState(false);
 
   const [isFollowing, setIsFollowing] = React.useState(true);
 
@@ -148,6 +151,7 @@ function TileMapView({
           mapInstanceRef.current = map;
         }
 
+        setMapReady(true);
         setLoading(false);
       })
       .catch(() => {
@@ -174,8 +178,23 @@ function TileMapView({
   }, [mapType]);
 
   // Effect 1: Routes, origin, destination, assist, trail — redraw layers and fitBounds
-  const routeSig = JSON.stringify(routes.map((r) => r.id));
+  const routeSig = React.useMemo(() => {
+    return JSON.stringify({
+      routes: routes.map((r) => ({
+        id: r.id,
+        selected: !!r.selected,
+        tier: r.safetyTier,
+        len: r.polyline?.length ?? 0,
+      })),
+      origin: origin ? [origin.lat, origin.lng] : null,
+      destination: destination ? [destination.lat, destination.lng] : null,
+      assist: assist.map((a) => a.id),
+      trailLen: trail?.length ?? 0,
+    });
+  }, [routes, origin, destination, assist, trail]);
+
   React.useEffect(() => {
+    if (!mapReady) return;
     const map = mapInstanceRef.current;
     const group = layerGroupRef.current;
     const w = window as any;
@@ -184,33 +203,54 @@ function TileMapView({
     const L = w.L;
     group.clearLayers();
 
-    // Also remove old position marker from this group so it doesn't get cleared
-    // (posMarkerRef is added separately to map, not the group)
-
     const boundsPoints: [number, number][] = [];
 
     // 1. Draw Routes (Solid lines like Google Maps, colored by safety tier)
-    const sortedRoutes = [...routes].sort((a, b) => Number(!!a.selected) - Number(!!b.selected));
+    // Order from bottom to top so that:
+    // - Unselected regular routes (direct/balanced) are at the bottom
+    // - Safest route is always elevated so its green line is never completely hidden by overlapping roads
+    // - Currently selected route is on top with its glowing white halo
+    const sortedRoutes = [...routes].sort((a, b) => {
+      const aTierScore = a.safetyTier === 'safest' ? 2 : a.safetyTier === 'balanced' ? 1 : 0;
+      const bTierScore = b.safetyTier === 'safest' ? 2 : b.safetyTier === 'balanced' ? 1 : 0;
+      const aScore = (a.selected ? 100 : 0) + aTierScore;
+      const bScore = (b.selected ? 100 : 0) + bTierScore;
+      return aScore - bScore;
+    });
+
     for (const r of sortedRoutes) {
       if (!r.polyline || !r.polyline.length) continue;
       const pts = r.polyline.map((p) => [p[0], p[1]] as [number, number]);
       pts.forEach((p) => boundsPoints.push(p));
 
-      // Safety-tier colors: safest=green, balanced=blue, direct=gray
-      const tierColor = r.safetyTier === 'safest'
-        ? '#10B981'
+      const isSafest = r.safetyTier === 'safest';
+      const isSelected = !!r.selected;
+
+      // Safety-tier colors: safest=vibrant emerald green, balanced=blue, direct=slate
+      const tierColor = isSafest
+        ? '#059669' // rich high-visibility emerald green
         : r.safetyTier === 'balanced'
           ? '#1877F2'
           : r.safetyTier === 'direct'
-            ? '#94A3B8'
-            : r.color;
+            ? '#64748B'
+            : r.color || '#059669';
 
-      // White outline casing for selected route
-      if (r.selected) {
+      // White outline casing:
+      // If selected: thick white casing
+      // If safest (even unselected): subtle white casing so the green line never gets lost against street tiles or overlapping lines
+      if (isSelected) {
         L.polyline(pts, {
           color: '#ffffff',
-          weight: 9,
+          weight: 10,
           opacity: 0.95,
+          lineCap: 'round',
+          lineJoin: 'round',
+        }).addTo(group);
+      } else if (isSafest) {
+        L.polyline(pts, {
+          color: '#ffffff',
+          weight: 7,
+          opacity: 0.85,
           lineCap: 'round',
           lineJoin: 'round',
         }).addTo(group);
@@ -218,22 +258,29 @@ function TileMapView({
 
       // Main route polyline
       const line = L.polyline(pts, {
-        color: r.selected ? tierColor : tierColor,
-        weight: r.selected ? 6 : 4,
-        opacity: r.selected ? 1 : 0.65,
+        color: tierColor,
+        weight: isSelected ? 6.5 : (isSafest ? 5 : 3.5),
+        opacity: isSelected ? 1 : (isSafest ? 0.95 : 0.65),
         lineCap: 'round',
         lineJoin: 'round',
-        dashArray: r.selected ? undefined : undefined,
       }).addTo(group);
 
+      if (onSelectRoute) {
+        line.on('click', () => onSelectRoute(r.id));
+        line.setStyle({ cursor: 'pointer' });
+      }
+
       // Safety label tooltip on the route line
-      if (r.safetyLabel || r.label) {
-        const popupLabel = r.safetyLabel ?? r.label ?? '';
+      const popupLabel = isSafest
+        ? (r.safetyLabel || '🛡️ Safest Route')
+        : (r.safetyLabel ?? r.label ?? '');
+
+      if (popupLabel) {
         line.bindTooltip(popupLabel, {
-          permanent: r.selected,
+          permanent: isSelected || (isSafest && routes.length > 1),
           direction: 'center',
-          className: 'leaflet-safety-label',
-          opacity: 0.9,
+          className: isSafest ? 'leaflet-safety-label leaflet-safety-label-safest' : 'leaflet-safety-label',
+          opacity: 0.95,
         });
       }
     }
@@ -313,14 +360,14 @@ function TileMapView({
         .addTo(group);
     }
 
-    // Auto-fit bounds to view all route/origin/dest — only on route changes
+    // Auto-fit bounds to view all route/origin/dest
     if (boundsPoints.length > 0) {
+      map.invalidateSize();
       const bounds = L.latLngBounds(boundsPoints);
       map.fitBounds(bounds, { padding: [45, 45], maxZoom: 16 });
       hasFittedRef.current = true;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routeSig, origin, destination, assist, trail]);
+  }, [mapReady, routeSig, onSelectRoute]);
 
   // Effect 2: Position/live location ONLY — update smoothly without recreating marker or reset bounds
   React.useEffect(() => {
@@ -508,7 +555,11 @@ function SchematicMap({
   const path = (pl: LatLngTuple[]) =>
     pl.map((p, i) => `${i ? 'L' : 'M'}${X(p[1]).toFixed(1)},${Y(p[0]).toFixed(1)}`).join(' ');
 
-  const ordered = [...routes].sort((a, b) => Number(!!a.selected) - Number(!!b.selected));
+  const ordered = [...routes].sort((a, b) => {
+    const aTier = a.safetyTier === 'safest' ? 2 : a.safetyTier === 'balanced' ? 1 : 0;
+    const bTier = b.safetyTier === 'safest' ? 2 : b.safetyTier === 'balanced' ? 1 : 0;
+    return (Number(!!a.selected) * 10 + aTier) - (Number(!!b.selected) * 10 + bTier);
+  });
   return (
     <figure className={cn('overflow-hidden rounded-2xl border bg-surface', className)}>
       <svg
@@ -524,30 +575,49 @@ function SchematicMap({
         </defs>
         <rect width={W} height={H} fill="#F6F7F9" />
         <rect width={W} height={H} fill="url(#grid)" />
-        {ordered.map((r) => (
-          <g key={r.id}>
-            {r.selected && (
+        {ordered.map((r) => {
+          const isSafest = r.safetyTier === 'safest';
+          const tierColor = isSafest
+            ? '#059669'
+            : r.safetyTier === 'balanced'
+              ? '#1877F2'
+              : r.safetyTier === 'direct'
+                ? '#64748B'
+                : r.color || '#059669';
+          return (
+            <g key={r.id}>
+              {r.selected ? (
+                <path
+                  d={path(r.polyline)}
+                  fill="none"
+                  stroke="#fff"
+                  strokeWidth="10"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              ) : isSafest ? (
+                <path
+                  d={path(r.polyline)}
+                  fill="none"
+                  stroke="#fff"
+                  strokeWidth="7"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              ) : null}
               <path
                 d={path(r.polyline)}
                 fill="none"
-                stroke="#fff"
-                strokeWidth="10"
+                stroke={tierColor}
+                strokeWidth={r.selected ? 6 : (isSafest ? 4.5 : 3)}
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                strokeDasharray={r.selected || isSafest ? undefined : '2 7'}
+                opacity={r.selected || isSafest || routes.length === 1 ? 1 : 0.75}
               />
-            )}
-            <path
-              d={path(r.polyline)}
-              fill="none"
-              stroke={r.color}
-              strokeWidth={r.selected ? 5 : 3}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeDasharray={r.selected ? undefined : '2 7'}
-              opacity={r.selected || routes.length === 1 ? 1 : 0.8}
-            />
-          </g>
-        ))}
+            </g>
+          );
+        })}
         {trail && trail.length > 1 && (
           <path
             d={path(trail)}
@@ -659,14 +729,47 @@ function GoogleMapView({
         routes.forEach((r) => {
           const path = r.polyline.map((p) => ({ lat: p[0], lng: p[1] }));
           path.forEach((p) => bounds.extend(p));
+          const isSafest = r.safetyTier === 'safest';
+          const tierColor = isSafest
+            ? '#059669'
+            : r.safetyTier === 'balanced'
+              ? '#1877F2'
+              : r.safetyTier === 'direct'
+                ? '#64748B'
+                : r.color || '#059669';
+
+          if (r.selected) {
+            add(
+              new g.maps.Polyline({
+                map: map.current,
+                path,
+                strokeColor: '#ffffff',
+                strokeWeight: 10,
+                strokeOpacity: 0.95,
+                zIndex: 4,
+              }),
+            );
+          } else if (isSafest) {
+            add(
+              new g.maps.Polyline({
+                map: map.current,
+                path,
+                strokeColor: '#ffffff',
+                strokeWeight: 7,
+                strokeOpacity: 0.85,
+                zIndex: 2,
+              }),
+            );
+          }
+
           add(
             new g.maps.Polyline({
               map: map.current,
               path,
-              strokeColor: r.color,
-              strokeWeight: r.selected ? 6 : 3,
-              strokeOpacity: r.selected ? 1 : 0.55,
-              zIndex: r.selected ? 2 : 1,
+              strokeColor: tierColor,
+              strokeWeight: r.selected ? 6.5 : (isSafest ? 5 : 3.5),
+              strokeOpacity: r.selected ? 1 : (isSafest ? 0.95 : 0.65),
+              zIndex: r.selected ? 5 : (isSafest ? 3 : 1),
             }),
           );
         });

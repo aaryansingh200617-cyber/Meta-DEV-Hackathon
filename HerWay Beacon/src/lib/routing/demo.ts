@@ -103,6 +103,19 @@ export function demoRoutes(origin: Place, destination: Place, mode: TravelMode, 
       assist.push({ id: `${p.id}-A${k}`, kind: kind.kind, name: `${kind.name} (simulated)`, lat: q.lat, lng: q.lng, openNow: kind.kind === 'open_late' ? rand() < 0.6 : null, source: 'demo' });
     }
 
+    const safetyTier = p.id === 'A' ? ('safest' as const) : p.id === 'B' ? ('balanced' as const) : ('direct' as const);
+    const safetyScore = p.id === 'A' ? 92 : p.id === 'B' ? 76 : 60;
+    const safetyLabel = p.id === 'A'
+      ? '🛡 Safest · Well-lit arterial boulevard'
+      : p.id === 'B'
+        ? '⚡ Balanced · Active mixed corridor'
+        : '🕐 Direct · Secondary road cut';
+    const safetyReason = p.id === 'A'
+      ? 'Continuous street illumination · Active commercial presence · High pedestrian traffic'
+      : p.id === 'B'
+        ? 'Alternative road network with moderate lighting and transit points'
+        : 'Shortest path with quieter residential stretches';
+
     return {
       id: `demo-${p.id}`,
       label: p.label,
@@ -113,6 +126,10 @@ export function demoRoutes(origin: Place, destination: Place, mode: TravelMode, 
       source: 'demo' as const,
       simulated: true,
       evidence: buildEvidence(polyline, observations, assist, { sources: ['demo'], simulated: true }, now),
+      safetyScore,
+      safetyTier,
+      safetyLabel,
+      safetyReason,
     };
   });
 }
